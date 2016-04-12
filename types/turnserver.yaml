@@ -1,0 +1,34 @@
+################################################################
+# Blueprint node types.
+#
+# specific new types for the nodecellar app.
+# these types are mapped to scripts that are resposible
+# for the lifecycle operation.
+################################################################
+
+node_types:
+
+  turn.nodes.CoTurnContainer:
+    derived_from: cloudify.docker.Container
+    properties:
+      name:
+        default: turnserver
+      image:
+        default:
+          repository: boucherv/turnserver
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: docker.docker_plugin.tasks.create_container
+          inputs:
+            params:
+              default: {}
+        start:
+          implementation: docker.docker_plugin.tasks.start
+          inputs:
+            params:
+              default: {}
+            processes_to_wait_for:
+              default: []
+            retry_interval:
+              default: 1
