@@ -39,8 +39,7 @@ inputs:
 
 
 node_types:
-
-  nodecellar.nodes.MonitoredDockerHost:
+  turnserver.nodes.MonitoredDockerHost:
     derived_from: cloudify.openstack.nodes.Server
     properties:
       cloudify_agent:
@@ -103,7 +102,7 @@ node_templates:
           protocol: udp
 
   turn_vm:
-    type: nodecellar.nodes.MonitoredDockerHost
+    type: turnserver.nodes.MonitoredDockerHost
     properties:
       cloudify_agent:
         user: { get_input: agent_user }
@@ -123,7 +122,7 @@ node_templates:
           inputs:
             params:
               ports:
-                - ({ get_input: turn_port_min }, udp)
+                - { get_input: turn_port_min }
               stdin_open: true
               tty: true
               command: /sbin/my_init
