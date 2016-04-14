@@ -152,8 +152,8 @@ node_templates:
                 TEST: test
             other_params:
               ports_range:
-                - min: turn_port_range_min
-                  size: turn_port_range_size
+                - min: { get_input: turn_port_range_min }
+                  size: { get_input: turn_port_range_size }
                   protocol: udp
         start:
           inputs:
@@ -161,8 +161,8 @@ node_templates:
               port_bindings: { get_input: turn_container_base_port_bindings }
             other_params:
               ports_range:
-                - min: turn_port_range_min
-                  size: turn_port_range_size
+                - min: { get_input: turn_port_range_min }
+                  size: { get_input: turn_port_range_size }
                   protocol: udp
 
     relationships:
