@@ -21,21 +21,36 @@ inputs:
       User name used when SSH-ing into the started machine
     default: ubuntu
 
-  turn_port_min:
+  turn_port_base_min:
     description: >
       Which port you want to map the turn port to.
     default: 3478
 
-  turn_port_max:
+  turn_port_base_max:
     description: >
       Which port you want to map the turn port to.
-    default: 3578
+    default: 3488
+
+  turn_port_range_min:
+    description: >
+      Which port you want to map the turn port to.
+    default: 49152
+
+  turn_port_range_size:
+    description: >
+      Which port you want to map the turn port to.
+    default: 10
+
+  turn_port_range_max:
+    description: >
+      Which port you want to map the turn port to.
+    default: 49252
 
   turn_container_base_port_bindings:
     description: >
       A dict of port bindings for the turn container.
     default:
-      3478: 3478/udp
+      '3478/udp': 3478
 
 
 node_types:
@@ -97,8 +112,16 @@ node_templates:
         name: turnondemand-sg_turn
       rules:
         - remote_ip_prefix: 0.0.0.0/0
-          port_range_min: { get_input: turn_port_min }
-          port_range_max: { get_input: turn_port_max }
+          port_range_min: { get_input: turn_port_base_min }
+          port_range_max: { get_input: turn_port_base_max }
+          protocol: udp
+        - remote_ip_prefix: 0.0.0.0/0
+          port_range_min: { get_input: turn_port_base_min }
+          port_range_max: { get_input: turn_port_base_max }
+          protocol: tcp
+        - remote_ip_prefix: 0.0.0.0/0
+          port_range_min: { get_input: turn_port_range_min }
+          port_range_max: { get_input: turn_port_range_max }
           protocol: udp
 
   turn_vm:
@@ -113,7 +136,6 @@ node_templates:
       - target: turn_floatingip
         type: cloudify.openstack.server_connected_to_floating_ip
 
-
   turn_container:
     type: turn.nodes.CoTurnContainer
     interfaces:
@@ -122,16 +144,26 @@ node_templates:
           inputs:
             params:
               ports:
-                - { get_input: turn_port_min }
+                - { get_input: turn_port_base_min }
               stdin_open: true
               tty: true
               command: /sbin/my_init
               environment:
                 TEST: test
+            other_params:
+              ports_range:
+                - min: turn_port_range_min
+                  size: turn_port_range_size
+                  protocol: udp
         start:
           inputs:
             params:
               port_bindings: { get_input: turn_container_base_port_bindings }
+            other_params:
+              ports_range:
+                - min: turn_port_range_min
+                  size: turn_port_range_size
+                  protocol: udp
 
     relationships:
       - type: cloudify.relationships.contained_in
