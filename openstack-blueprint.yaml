@@ -145,9 +145,7 @@ node_templates:
             params:
               ports:
                 - { get_input: turn_port_base_min }
-              stdin_open: true
-              tty: true
-              command: /sbin/my_init
+              command: /etc/service/turnserver/run
               environment:
                 TEST: test
             other_params:
